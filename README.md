@@ -31,19 +31,27 @@ If you want to learn more about building native executables, please consult http
 
 ## Testing
 
-By default, Pods in Kubernetes do not have the permission to list other pods. Therefore, we need to create a cluster role, a service account, and a cluster role binding.
+TL;DR
 
-kubectl apply -f k8s_files/operator.clusterrole.yaml
-kubectl apply -f k8s_files/operator.serviceaccount.yaml
-kubectl apply -f k8s_files/operator.clusterrolebinding.yaml
+    kubectl apply -f k8s_files/
+
+###Explanation
+
+By default, Pods in Kubernetes do not have the permission to list other pods. 
+Therefore, we need to create a cluster role, a service account, and a cluster role binding.
+
+    kubectl apply -f k8s_files/operator.clusterrole.yaml
+    kubectl apply -f k8s_files/operator.serviceaccount.yaml
+    kubectl apply -f k8s_files/operator.clusterrolebinding.yaml
 
 Now you can run the `kubectl apply -f k8s_files/operator.crd.yaml` command to register the CRD in the cluster. 
 
 Run the `kubectl apply -f k8s_files/operator.deployment.yaml` command to register the operator.
 
 
+
 ### Running the example
-Apply the custom resource by running: kubectl apply -f cx-statics.yaml and check the output of kubectl get pods command.
+Apply the custom resource by running: `kubectl apply -f cx-statics.yaml` and check the output of kubectl get pods command.
 
 ```
 │ exec java -Dquarkus.http.host=0.0.0.0 -Djava.util.logging.manager=org.jboss.logmanager.LogManager -XX:+UseParallelGC -XX:GCTimeRatio=4 -XX:AdaptiveSizePolicyWeight=90 -XX:MinHeapFreeRatio=20 -XX:MaxHeapFreeRatio=40 -XX:+ExitOnOutOfMem │
