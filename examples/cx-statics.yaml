@@ -1,0 +1,16 @@
+apiVersion: mykubernetes.acme.org/v1beta2
+kind: Static
+metadata:
+  name: cx-statics3
+spec:
+  repository: https://repo.backbase.com
+  repousername: trainingbe2020wk23
+  repopassword: W<9bwmGLB(rR
+  statics:
+    - /backbase-6-release/com/backbase/cxp/editorial-collection/b3554/editorial-collection-b3554.zip
+    - /expert-release-local/com/backbase/web-sdk/collection/collection-bb-web-sdk/1.11.0/collection-bb-web-sdk-1.11.0.zip
+    - /backbase-6-release/com/backbase/cxp/experience-manager/b3554/experience-manager-b3554.zip
+  auth: edge
+  provisioning: edge
+  password: admin
+  username: admin
