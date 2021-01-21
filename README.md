@@ -35,7 +35,7 @@ TL;DR
 
     kubectl apply -f k8s_files/
 
-###Explanation
+### Explanation
 
 By default, Pods in Kubernetes do not have the permission to list other pods. 
 Therefore, we need to create a cluster role, a service account, and a cluster role binding.

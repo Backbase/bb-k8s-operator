@@ -1,9 +1,8 @@
 package com.backbase.client;
 
 import com.backbase.model.StaticResource;
-import com.backbase.model.StaticResourceDoneable;
 import com.backbase.model.StaticResourceList;
-import io.fabric8.kubernetes.api.model.apiextensions.CustomResourceDefinition;
+import io.fabric8.kubernetes.api.model.apiextensions.v1beta1.CustomResourceDefinition;
 import io.fabric8.kubernetes.client.DefaultKubernetesClient;
 import io.fabric8.kubernetes.client.KubernetesClient;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
@@ -34,10 +33,10 @@ public class KubernetesClientProducer {
 
     @Produces
     @Singleton
-    NonNamespaceOperation<StaticResource, StaticResourceList, StaticResourceDoneable, Resource<StaticResource, StaticResourceDoneable>>
+    NonNamespaceOperation<StaticResource, StaticResourceList, Resource<StaticResource>>
     makeCustomHelloResourceClient(KubernetesClient defaultClient, @Named("namespace") String namespace) {
 
-        KubernetesDeserializer.registerCustomKind("mykubernetes.acme.org/v1beta2", "Static", StaticResource.class);
+        KubernetesDeserializer.registerCustomKind("mykubernetes.acme.org/v1", "Static", StaticResource.class);
 
         CustomResourceDefinition crd = defaultClient.customResourceDefinitions()
         .list()
@@ -45,9 +44,9 @@ public class KubernetesClientProducer {
         .stream()
         .filter(d -> "statics.mykubernetes.acme.org".equals(d.getMetadata().getName()))
         .findAny()
-            .orElseThrow(() -> new RuntimeException("Deployment error: Custom resource definition mykubernetes.acme.org/v1beta2 not found."));
+            .orElseThrow(() -> new RuntimeException("Deployment error: Custom resource definition mykubernetes.acme.org/v1 not found."));
             
-        return defaultClient.customResources(crd, StaticResource.class, StaticResourceList.class, StaticResourceDoneable.class).inNamespace(namespace);
+        return defaultClient.customResources(crd, StaticResource.class, StaticResourceList.class).inNamespace(namespace);
 
     }
 

@@ -8,7 +8,7 @@ metadata:
 spec:
   group: mykubernetes.acme.org 
   scope: Namespaced
-  version: v1beta2
+  version: v1
   names:
     kind: Static
     listKind: StaticList

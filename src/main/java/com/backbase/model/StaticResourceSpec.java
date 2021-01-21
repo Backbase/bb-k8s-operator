@@ -1,18 +1,23 @@
 package com.backbase.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.JsonDeserializer;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import io.fabric8.kubernetes.api.model.KubernetesResource;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 import java.util.ArrayList;
 import java.util.List;
 
-@JsonDeserialize
+
 @RegisterForReflection
-public class StaticResourceSpec {
+@JsonDeserialize(
+    using = JsonDeserializer.None.class
+)
+public class StaticResourceSpec implements KubernetesResource {
 
     // repository: https://repo.backbase.com
-    // repousername: andres
-    // repopassword: Txomin@@1984
+    // repousername: user
+    // repopassword: pass
     // statics:
     //   - /backbase-6-release/com/backbase/cxp/editorial-collection/b3554/editorial-collection-b3554.zip
     //   - /expert-release-local/com/backbase/web-sdk/collection/collection-bb-web-sdk/1.11.0/collection-bb-web-sdk-1.11.0.zip

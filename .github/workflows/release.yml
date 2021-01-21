@@ -1,0 +1,36 @@
+name: Release Charts
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'charts/**'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v1
+
+      - name: Configure Git
+        run: |
+          git config user.name "$GITHUB_ACTOR"
+          git config user.email "$GITHUB_ACTOR@users.noreply.github.com"
+          
+      - name: Install Helm
+        uses: azure/setup-helm@v1
+        with:
+          version: v3.4.0
+
+      - name: Add Backbase Helm repos
+        run: |
+          helm repo add backbase-charts https://repo.backbase.com/backbase-charts --username "${{ secrets.BB_REPO_USER }}" --password "${{ secrets.BB_REPO_PASS }}"
+
+      - name: Run chart-releaser
+        uses: helm/chart-releaser-action@v1.1.0
+        with:
+          charts_repo_url: https://backbase.github.io/helm-k8s-local
+        env:
+          CR_TOKEN: "${{ secrets.CR_TOKEN }}"

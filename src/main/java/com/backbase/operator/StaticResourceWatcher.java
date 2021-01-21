@@ -1,11 +1,10 @@
 package com.backbase.operator;
 
 import com.backbase.model.StaticResource;
-import com.backbase.model.StaticResourceDoneable;
 import com.backbase.model.StaticResourceList;
 import io.fabric8.kubernetes.client.KubernetesClient;
-import io.fabric8.kubernetes.client.KubernetesClientException;
 import io.fabric8.kubernetes.client.Watcher;
+import io.fabric8.kubernetes.client.WatcherException;
 import io.fabric8.kubernetes.client.dsl.NonNamespaceOperation;
 import io.fabric8.kubernetes.client.dsl.Resource;
 import io.quarkus.runtime.StartupEvent;
@@ -41,6 +40,7 @@ import javax.json.Json;
 import javax.json.JsonObject;
 import javax.json.JsonPointer;
 import javax.json.JsonString;
+import org.jboss.logging.Logger;
 
 public class StaticResourceWatcher {
 
@@ -48,18 +48,20 @@ public class StaticResourceWatcher {
     KubernetesClient defaultClient;
 
     @Inject
-    NonNamespaceOperation<StaticResource, StaticResourceList, StaticResourceDoneable, Resource<StaticResource, StaticResourceDoneable>> crClient;
+    NonNamespaceOperation<StaticResource, StaticResourceList, Resource<StaticResource>> crClient;
+
+    private static final Logger LOG = Logger.getLogger(StaticResourceWatcher.class);
 
     public static final String IMPORT_ZIP = "/tmp/import.zip";
     public static final String LOGIN = "http://%s:8080/api/auth/login";
     public static final String PROVISIONING = "http://%s:8080/api/provisioning/importing/packages";
 
     void onStartup(@Observes final StartupEvent event) {
-        System.out.println("Startup");
-        crClient.watch(new Watcher<StaticResource>() {
+        LOG.info("Startup");
+        crClient.watch(new Watcher<>() {
             @Override
             public void eventReceived(final Action action, final StaticResource resource) {
-                System.out.println("Event " + action.name());
+                LOG.info("Event " + action.name());
                 if (action == Action.ADDED) {
                     final String app = resource.getMetadata().getName();
                     final String provisioning_service = resource.getSpec().getProvisioning();
@@ -72,21 +74,16 @@ public class StaticResourceWatcher {
                     final Map<String, String> labels = new HashMap<>();
                     labels.put("app", app);
 
-//                    final String serviceURL = defaultClient.services().inNamespace(defaultClient.getNamespace())
-//                            .withName(provisioning_service).get().toString();
-//                    System.out.println("Service URL " + serviceURL);
-
                     for (String url : statics
                     ) {
 
-                        //Download the zip
+                        //Download zips
                         Path localFile = Paths.get(IMPORT_ZIP);
                         if (Files.exists(localFile)) {
                             File file = new File(localFile.toString());
                             file.delete();
                         }
 
-                        //Download zips
                         HttpRequest requestDownload = HttpRequest.newBuilder()
                             .GET()
                             .uri(URI.create(
@@ -105,7 +102,7 @@ public class StaticResourceWatcher {
                             e.printStackTrace();
                         }
 
-                        System.out.println(responseDownload.statusCode());
+                        LOG.infov("Download Response Status Code {0}", responseDownload.statusCode());
 
                         //Login
                         // json formatted data
@@ -136,14 +133,14 @@ public class StaticResourceWatcher {
                             .getCookies().get(0)
                             .getValue();
 
-                        System.out.println(xsrf_token);
+                        LOG.infov("XSRF Token {0}", xsrf_token);
 
                         JsonObject jsonObject = Json.createReader(new StringReader(response.body())).readObject();
                         JsonPointer jsonPointer = Json.createPointer("/access_token");
-                        JsonString jsonString = (JsonString)jsonPointer.getValue(jsonObject);
+                        JsonString jsonString = (JsonString) jsonPointer.getValue(jsonObject);
                         String token = jsonString.getString();
 
-                        System.out.println(token);
+                        LOG.infov("JWT Token {0}", token);
 
                         //Provision
                         String boundary = new BigInteger(256, new Random()).toString();
@@ -164,6 +161,7 @@ public class StaticResourceWatcher {
                             e.printStackTrace();
                         }
 
+                        LOG.infov("Provisioning {0}",url.substring(url.lastIndexOf('/') + 1));
                         HttpResponse<String> responseProvisioning = null;
                         try {
                             responseProvisioning = httpClient
@@ -174,15 +172,19 @@ public class StaticResourceWatcher {
                             e.printStackTrace();
                         }
 
-                        System.out.println(responseProvisioning.statusCode());
+                        LOG.infov("Provisioning Response Status Code {0}",responseProvisioning.statusCode());
 
                     }
 
                 }
             }
 
-            @Override
-            public void onClose(final KubernetesClientException e) {
+            public void onClose(WatcherException cause) {
+                // Do in case of exception
+            }
+
+            public void onClose() {
+                // Clean-up operations
             }
         });
     }
