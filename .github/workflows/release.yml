@@ -24,10 +24,6 @@ jobs:
         with:
           version: v3.4.0
 
-      - name: Add Backbase Helm repos
-        run: |
-          helm repo add backbase-charts https://repo.backbase.com/backbase-charts --username "${{ secrets.BB_REPO_USER }}" --password "${{ secrets.BB_REPO_PASS }}"
-
       - name: Run chart-releaser
         uses: helm/chart-releaser-action@v1.1.0
         with:
