@@ -1,0 +1,11 @@
+apiVersion: mykubernetes.acme.org/v1
+kind: Static
+metadata:
+  name: cx-statics
+spec:
+  repousername: yourusername
+  repopassword: yourpass
+  statics:
+    - /backbase-6-release/com/backbase/cxp/editorial-collection/2.0.0-b340/editorial-collection-2.0.0-b340.zip
+    - /expert-release-local/com/backbase/web-sdk/collection/collection-bb-web-sdk/1.14.0/collection-bb-web-sdk-1.14.0.zip
+    - /backbase-6-release/com/backbase/cxp/experience-manager/2.0.0-b340/experience-manager-2.0.0-b340.zip
